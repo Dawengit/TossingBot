@@ -34,7 +34,7 @@ class Robot:
         self.joint_limits:np.ndarray      = get_joint_limits(uid, range(self.joint_index_last+1))
         self.joint_range:np.ndarray       = (np.array(self.joint_limits[1]) - np.array(self.joint_limits[0]))
 
-        # 修改这里：将末端手指的初始位置改小，使夹爪半闭合
+        # revise here: change the initial position of the end effector to make the gripper half closed
         self.rest_pose:np.ndarray = np.array((
             0.0,
             0.0,
@@ -43,8 +43,8 @@ class Robot:
             -1.047,
             -1.57,
             0.0,
-            0.0,   # 手指相关关节初始值
-            0.3    # 原本是0.785，改为0.3使夹爪微微闭合
+            0.0,   
+            0.3    
         ))
 
         self.reset()
@@ -107,7 +107,7 @@ class ThrowingEnv:
         bucket_distance = random.uniform(0.8, 1.2)
         self.bucket_uid = p.loadURDF(os.path.join(pb_data_path, "tray/traybox.urdf"), basePosition=[bucket_distance, 0, 0])
         
-        # 将球放在略低于末端夹爪高度且在爪子范围内
+        # let the ball be slightly lower than the end effector height and within the gripper range
         self.object_uid = p.loadURDF("sphere2.urdf", basePosition=[0.5, 0, 0.12], globalScaling=0.1)
 
         self.bucket_pos = p.getBasePositionAndOrientation(self.bucket_uid)[0]
@@ -119,7 +119,7 @@ class ThrowingEnv:
         p.setTimeStep(4./240.)
         self._load_models()
 
-        # 执行几步仿真，让球和夹爪之间的接触稳定
+        # run a few steps to stabilize the simulation
         for _ in range(50):
             p.stepSimulation()
 
@@ -131,7 +131,7 @@ class ThrowingEnv:
         self._apply_action(action)
         for _ in range(4):
             p.stepSimulation()
-            time.sleep(1./240.) # 若不需要可视化可注释掉
+            time.sleep(1./240.) # if you want to slow down the simulation, you can add a delay here
         self.current_step += 1
 
         obs = self._get_observation()
